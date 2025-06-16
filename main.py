@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, HTMLResponse
-from openai import OpenAI
+import openai
 import os
 
 app = FastAPI()
