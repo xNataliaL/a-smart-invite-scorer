@@ -1,44 +1,202 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Smart Invite Scorer</title>
+  <title>DeepLearning.AI Invitation Scorer</title>
   <style>
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: Arial, sans-serif;
-      max-width: 800px;
-      margin: 30px auto;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 20px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+    }
+    .container {
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+    .header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      color: #2c3e50;
+      font-size: 2.5em;
+      margin: 0;
+      font-weight: 700;
+    }
+    .header p {
+      color: #7f8c8d;
+      font-size: 1.1em;
+      margin: 10px 0;
+    }
+    .input-section {
+      margin-bottom: 30px;
     }
     textarea {
       width: 100%;
+      padding: 15px;
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: inherit;
+      resize: vertical;
+      transition: border-color 0.3s ease;
+    }
+    textarea:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    .button-container {
+      text-align: center;
+      margin: 20px 0;
     }
     button {
-      margin-top: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      font-size: 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-    .box {
-      border: 1px solid #ccc;
-      background-color: #f9f9f9;
-      padding: 10px;
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    .result-card {
+      background: #f8f9fa;
+      border: 1px solid #e9ecef;
+      border-radius: 8px;
+      padding: 25px;
+      margin-top: 30px;
+    }
+    .result-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .result-header h3 {
+      margin: 0;
+      color: #2c3e50;
+      font-size: 1.4em;
+    }
+    .recommendation-badge {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      font-weight: 600;
+      margin-left: auto;
+    }
+    .send-to-andrew {
+      background: #27ae60;
+      color: white;
+    }
+    .ask-questions {
+      background: #f39c12;
+      color: white;
+    }
+    .decline {
+      background: #e74c3c;
+      color: white;
+    }
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .info-item {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      border-left: 4px solid #667eea;
+    }
+    .info-item strong {
+      color: #2c3e50;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .reasons {
+      background: white;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+    .reasons ul {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .response-box {
+      background: #e8f4fd;
+      border: 1px solid #bee5eb;
+      border-radius: 6px;
+      padding: 20px;
       margin-top: 15px;
       white-space: pre-wrap;
+      font-family: Georgia, serif;
+      line-height: 1.6;
+    }
+    .loading {
+      text-align: center;
+      color: #667eea;
+      font-size: 1.1em;
+    }
+    .error {
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+      padding: 15px;
+      border-radius: 6px;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h2>Smart Invite Scorer</h2>
-  <p>Paste the invite text below and click "Score Invite".</p>
+  <div class="container">
+    <div class="header">
+      <h1>🎯 Invitation Scorer</h1>
+      <p>DeepLearning.AI Team Assistant</p>
+      <p>Analyze speaking engagements, podcasts, interviews & media invitations for Andrew Ng</p>
+    </div>
 
-  <textarea id="invite" rows="10"></textarea><br>
-  <button onclick="sendInvite()">Score Invite</button>
+    <div class="input-section">
+      <textarea id="invite" rows="12" placeholder="Paste the invitation email or message here..."></textarea>
+    </div>
+    
+    <div class="button-container">
+      <button onclick="sendInvite()" id="scoreBtn">📊 Score Invitation</button>
+    </div>
 
-  <div id="output" style="margin-top: 30px;"></div>
+    <div id="output"></div>
+  </div></body>
 
   <script>
     async function sendInvite() {
-      const inviteText = document.getElementById('invite').value;
+      const inviteText = document.getElementById('invite').value.trim();
       const output = document.getElementById('output');
-      output.innerHTML = "⏳ Scoring invite...";
+      const scoreBtn = document.getElementById('scoreBtn');
+      
+      if (!inviteText) {
+        output.innerHTML = '<div class="error">⚠️ Please paste an invitation before scoring.</div>';
+        return;
+      }
+
+      scoreBtn.disabled = true;
+      scoreBtn.textContent = '⏳ Analyzing...';
+      output.innerHTML = '<div class="loading">🤖 AI is analyzing the invitation...</div>';
 
       try {
         const response = await fetch('/score_invite', {
@@ -47,39 +205,80 @@
           body: JSON.stringify({ invite_text: inviteText })
         });
 
-      const data = await response.json();
-      if (data.result) {
-        try {
-          const json = JSON.parse(data.result);
+        const data = await response.json();
+        if (data.result) {
+          try {
+            const json = JSON.parse(data.result);
+            
+            const recommendationClass = json.recommendation.toLowerCase().replace(/[^a-z]/g, '-');
+            const badgeClass = recommendationClass.includes('send') ? 'send-to-andrew' : 
+                               recommendationClass.includes('ask') ? 'ask-questions' : 'decline';
 
-          output.innerHTML = `
-            <h3>Scoring Result:</h3>
-            <p><strong>Event:</strong> ${json.event_name}</p>
-            <p><strong>Credibility:</strong> ${json.organizer_credibility}</p>
-            <p><strong>Audience Size:</strong> ${json.audience_size}</p>
-            <p><strong>Other Speakers:</strong> ${json.other_speakers}</p>
-            <p><strong>Relevance Score:</strong> ${json.relevance_score}/10</p>
-            <p><strong>Recommendation:</strong> ${json.recommendation}</p>
-            <p><strong>Reasons:</strong><ul>${json.key_reasons.map(r => `<li>${r}</li>`).join('')}</ul></p>
-            <p><strong>Suggested Response:</strong></p>
-            <div class="box">${json.suggested_response}</div>
-          `;
-        } catch (parseError) {
-          console.error('JSON parsing error:', parseError);
-          output.innerHTML = `
-            <h3>Raw AI Response:</h3>
-            <div class="box">${data.result}</div>
-            <p style="color:orange;">⚠️ The AI response wasn't in the expected JSON format, but here's what it returned.</p>
-          `;
+            output.innerHTML = `
+              <div class="result-card">
+                <div class="result-header">
+                  <h3>${json.event_or_show_name || 'Invitation Analysis'}</h3>
+                  <span class="recommendation-badge ${badgeClass}">${json.recommendation}</span>
+                </div>
+                
+                <div class="info-grid">
+                  <div class="info-item">
+                    <strong>Type:</strong>
+                    ${json.type || 'Unknown'}
+                  </div>
+                  <div class="info-item">
+                    <strong>Credibility:</strong>
+                    ${json.organizer_credibility}
+                  </div>
+                  <div class="info-item">
+                    <strong>Audience/Reach:</strong>
+                    ${json.audience_size}
+                  </div>
+                  <div class="info-item">
+                    <strong>Score:</strong>
+                    ${json.relevance_score}/10
+                  </div>
+                </div>
+
+                <div class="info-item">
+                  <strong>Other Participants:</strong>
+                  ${json.other_participants || 'Not mentioned'}
+                </div>
+
+                <div class="reasons">
+                  <strong>Key Analysis Points:</strong>
+                  <ul>${json.key_reasons.map(r => `<li>${r}</li>`).join('')}</ul>
+                </div>
+
+                <div>
+                  <strong>📧 Suggested Response from Natalia:</strong>
+                  <div class="response-box">${json.suggested_response}</div>
+                </div>
+              </div>
+            `;
+          } catch (parseError) {
+            console.error('JSON parsing error:', parseError);
+            output.innerHTML = `
+              <div class="result-card">
+                <h3>Raw AI Response:</h3>
+                <div class="response-box">${data.result}</div>
+                <p style="color:orange;">⚠️ The AI response wasn't in the expected JSON format, but here's what it returned.</p>
+              </div>
+            `;
+          }
+        } else {
+          output.innerHTML = `<div class="error">❌ Error: ${data.error || 'Unexpected issue'}</div>`;
         }
-      } else {
-        output.innerHTML = `<p style="color:red;">❌ Error: ${data.error || 'Unexpected issue'}</p>`;
-      }
       } catch (networkError) {
         console.error('Network error:', networkError);
-        output.innerHTML = `<p style="color:red;">❌ Network Error: ${networkError.message}</p>`;
+        output.innerHTML = `<div class="error">❌ Network Error: ${networkError.message}</div>`;
+      } finally {
+        scoreBtn.disabled = false;
+        scoreBtn.textContent = '📊 Score Invitation';
       }
     }
   </script>
+</body>
+</html>
 </body>
 </html>
