@@ -40,30 +40,44 @@
       const output = document.getElementById('output');
       output.innerHTML = "⏳ Scoring invite...";
 
-      const response = await fetch('/score_invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invite_text: inviteText })
-      });
+      try {
+        const response = await fetch('/score_invite', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ invite_text: inviteText })
+        });
 
       const data = await response.json();
       if (data.result) {
-        const json = JSON.parse(data.result);
+        try {
+          const json = JSON.parse(data.result);
 
-        output.innerHTML = `
-          <h3>Scoring Result:</h3>
-          <p><strong>Event:</strong> ${json.event_name}</p>
-          <p><strong>Credibility:</strong> ${json.organizer_credibility}</p>
-          <p><strong>Audience Size:</strong> ${json.audience_size}</p>
-          <p><strong>Other Speakers:</strong> ${json.other_speakers}</p>
-          <p><strong>Relevance Score:</strong> ${json.relevance_score}/10</p>
-          <p><strong>Recommendation:</strong> ${json.recommendation}</p>
-          <p><strong>Reasons:</strong><ul>${json.key_reasons.map(r => `<li>${r}</li>`).join('')}</ul></p>
-          <p><strong>Suggested Response:</strong></p>
-          <div class="box">${json.suggested_response}</div>
-        `;
+          output.innerHTML = `
+            <h3>Scoring Result:</h3>
+            <p><strong>Event:</strong> ${json.event_name}</p>
+            <p><strong>Credibility:</strong> ${json.organizer_credibility}</p>
+            <p><strong>Audience Size:</strong> ${json.audience_size}</p>
+            <p><strong>Other Speakers:</strong> ${json.other_speakers}</p>
+            <p><strong>Relevance Score:</strong> ${json.relevance_score}/10</p>
+            <p><strong>Recommendation:</strong> ${json.recommendation}</p>
+            <p><strong>Reasons:</strong><ul>${json.key_reasons.map(r => `<li>${r}</li>`).join('')}</ul></p>
+            <p><strong>Suggested Response:</strong></p>
+            <div class="box">${json.suggested_response}</div>
+          `;
+        } catch (parseError) {
+          console.error('JSON parsing error:', parseError);
+          output.innerHTML = `
+            <h3>Raw AI Response:</h3>
+            <div class="box">${data.result}</div>
+            <p style="color:orange;">⚠️ The AI response wasn't in the expected JSON format, but here's what it returned.</p>
+          `;
+        }
       } else {
         output.innerHTML = `<p style="color:red;">❌ Error: ${data.error || 'Unexpected issue'}</p>`;
+      }
+      } catch (networkError) {
+        console.error('Network error:', networkError);
+        output.innerHTML = `<p style="color:red;">❌ Network Error: ${networkError.message}</p>`;
       }
     }
   </script>
