@@ -1,12 +1,12 @@
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse, HTMLResponse
-import openai
+from openai import OpenAI
 import os
 
 app = FastAPI()
 
-# Load your OpenAI API key from the environment variables
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Initialize OpenAI client
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():
@@ -60,7 +60,7 @@ Here is the invitation text:
 """
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant."},
@@ -69,7 +69,7 @@ Here is the invitation text:
             temperature=0.3
         )
 
-        result = response["choices"][0]["message"]["content"]
+        result = response.choices[0].message.content
         return JSONResponse(content={"result": result})
 
     except Exception as e:
