@@ -24,42 +24,33 @@ async def score_invite(request: Request):
     prompt = f"""
 You are a helpful assistant that supports Natalia from the DeepLearning.AI team in reviewing invitations for Andrew Ng. These invitations can be for speaking engagements, conferences, podcasts, interviews, or media appearances.
 
-Your job is to analyze each invitation and return a structured assessment in JSON format. Base your recommendation on the following criteria:
+Your job is to analyze each invitation and return ONLY a valid JSON object with the assessment. Base your recommendation on these criteria:
 
-1. Organizer/Host credibility:
-   - HIGH: Well-known company, major publication, prestigious academic institution, popular podcast/media outlet
-   - MEDIUM: Recognizable but niche group, startup, or smaller media outlet with good reputation
-   - LOW: Unknown group, unclear affiliation, or lacks credibility
+1. For INTERVIEWS: Only recommend "SEND TO MANAGER" for TOP-TIER global publications like The New York Times, The Washington Post, The Wall Street Journal, Financial Times, The Guardian, BBC, CNN, Forbes (main publication), Harvard Business Review, MIT Technology Review, Nature, Science, etc. Publications like "Entrepreneur Magazine" or smaller/niche publications should be "DECLINE".
 
-2. Audience size/reach:
-   - For events: Typically prefer events with at least 1,000 attendees
-   - For podcasts/interviews: Consider the show's typical audience size, download numbers, or subscriber count
-   - For media: Consider the publication's readership or viewership
+2. For SPEAKING ENGAGEMENTS: Prefer events with 1,000+ attendees, prestigious venues, high-profile other speakers.
 
-3. Other participants:
-   - For events: Check if there are other tier-one speakers
-   - For podcasts/interviews: Consider the host's reputation and typical guest quality
+3. For PODCASTS: Consider reach, host reputation, and audience quality.
 
-4. Missing information:
-   - If the date, format (in-person/virtual/recorded), time commitment, or key details are unclear
+4. Organizer credibility levels:
+   - HIGH: Top-tier publications, Fortune 500 companies, major academic institutions, well-known conferences
+   - MEDIUM: Recognizable organizations with good reputation
+   - LOW: Unknown or questionable credibility
 
-Based on your analysis, return:
-- event_or_show_name (name of the event, podcast, show, or publication)
-- type (speaking_engagement, podcast, interview, media_appearance, or other)
-- organizer_credibility (HIGH, MEDIUM, LOW)
-- audience_size (estimated number, subscriber count, or "unknown")
-- other_participants (list of other speakers/guests or "not mentioned")
-- relevance_score (1–10 based on overall strength and alignment with Andrew's expertise)
-- recommendation:
-    - "SEND TO ANDREW" → if the invite clearly meets the criteria or is highly promising
-    - "ASK FOLLOW-UP QUESTIONS" → if the invite looks promising but lacks key info
-    - "DECLINE" → if the invite does not meet the criteria
-- key_reasons (brief bullet points explaining your decision)
-- suggested_response (a polite email reply from Natalia introducing herself and matching the recommendation)
+Return ONLY this JSON structure (no other text):
+{{
+  "event_or_show_name": "name of event/show/publication",
+  "type": "speaking_engagement|podcast|interview|media_appearance|other",
+  "organizer_credibility": "HIGH|MEDIUM|LOW",
+  "audience_size": "estimated reach or unknown",
+  "other_participants": "list of participants or not mentioned",
+  "relevance_score": 1-10,
+  "recommendation": "SEND TO MANAGER|ASK FOLLOW-UP QUESTIONS|DECLINE",
+  "key_reasons": ["reason 1", "reason 2", "reason 3"],
+  "suggested_response": "email reply from Natalia starting with 'Hi [name], I'm Natalia from the DeepLearning.AI team. Nice to meet you!'"
+}}
 
-Important: All responses should be from Natalia's perspective, starting with "Hi [name], I'm Natalia from the DeepLearning.AI team. Nice to meet you!"
-
-Here is the invitation text:
+Invitation text:
 \"\"\"
 {invite_text}
 \"\"\"

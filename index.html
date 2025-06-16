@@ -211,7 +211,7 @@
             const json = JSON.parse(data.result);
             
             const recommendationClass = json.recommendation.toLowerCase().replace(/[^a-z]/g, '-');
-            const badgeClass = recommendationClass.includes('send') ? 'send-to-andrew' : 
+            const badgeClass = recommendationClass.includes('manager') ? 'send-to-andrew' : 
                                recommendationClass.includes('ask') ? 'ask-questions' : 'decline';
 
             output.innerHTML = `
