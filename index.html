@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Smart Invite Scorer</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 30px auto;
+    }
+    textarea {
+      width: 100%;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-size: 16px;
+    }
+    .box {
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      padding: 10px;
+      margin-top: 15px;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h2>Smart Invite Scorer</h2>
+  <p>Paste the invite text below and click "Score Invite".</p>
+
+  <textarea id="invite" rows="10"></textarea><br>
+  <button onclick="sendInvite()">Score Invite</button>
+
+  <div id="output" style="margin-top: 30px;"></div>
+
+  <script>
+    async function sendInvite() {
+      const inviteText = document.getElementById('invite').value;
+      const output = document.getElementById('output');
+      output.innerHTML = "⏳ Scoring invite...";
+
+      const response = await fetch('/score_invite', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invite_text: inviteText })
+      });
+
+      const data = await response.json();
+      if (data.result) {
+        const json = JSON.parse(data.result);
+
+        output.innerHTML = `
+          <h3>Scoring Result:</h3>
+          <p><strong>Event:</strong> ${json.event_name}</p>
+          <p><strong>Credibility:</strong> ${json.organizer_credibility}</p>
+          <p><strong>Audience Size:</strong> ${json.audience_size}</p>
+          <p><strong>Other Speakers:</strong> ${json.other_speakers}</p>
+          <p><strong>Relevance Score:</strong> ${json.relevance_score}/10</p>
+          <p><strong>Recommendation:</strong> ${json.recommendation}</p>
+          <p><strong>Reasons:</strong><ul>${json.key_reasons.map(r => `<li>${r}</li>`).join('')}</ul></p>
+          <p><strong>Suggested Response:</strong></p>
+          <div class="box">${json.suggested_response}</div>
+        `;
+      } else {
+        output.innerHTML = `<p style="color:red;">❌ Error: ${data.error || 'Unexpected issue'}</p>`;
+      }
+    }
+  </script>
+</body>
+</html>
