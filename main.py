@@ -81,7 +81,7 @@ Return ONLY this JSON structure (no other text):
   "relevance_score": 1-10,
   "recommendation": "SEND TO MANAGER|ASK FOLLOW-UP QUESTIONS|DECLINE",
   "key_reasons": ["reason 1", "reason 2", "reason 3"],
-  "suggested_response": "email reply from Natalia starting with 'Hi [name], I'm Natalia from the DeepLearning.AI team. Nice to meet you!'"
+  "suggested_response": "email reply from Natalia starting with 'Hi [name], I'm Natalia from the DeepLearning.AI team. Nice to meet you!'and continuing with the appropriate response"
 }}
 
 Invitation text:
