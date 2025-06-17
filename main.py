@@ -5,8 +5,8 @@ import os
 
 app = FastAPI()
 
-# Initialize OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# Set OpenAI API key
+openai.api_key = os.getenv("OPENAI_API_KEY")
 
 @app.get("/", response_class=HTMLResponse)
 def read_root():
@@ -51,13 +51,13 @@ Return ONLY this JSON structure (no other text):
 }}
 
 Invitation text:
-\"\"\"
-{invite_text}
+\"\"\" 
+{invite_text} 
 \"\"\"
 """
 
     try:
-        response = client.chat.completions.create(
+        response = openai.ChatCompletion.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a helpful assistant that ONLY returns valid JSON. Do not include any text before or after the JSON object."},
@@ -66,24 +66,20 @@ Invitation text:
             temperature=0.3
         )
 
-        result = response.choices[0].message.content.strip()
-        
-        # Try to extract JSON from the response
+        result = response["choices"][0]["message"]["content"].strip()
+
         import json
         import re
-        
-        # Look for JSON object in the response
+
         json_match = re.search(r'\{.*\}', result, re.DOTALL)
         if json_match:
             json_str = json_match.group()
-            # Validate that it's proper JSON
             try:
                 parsed_json = json.loads(json_str)
                 return JSONResponse(content={"result": json_str})
             except json.JSONDecodeError:
                 pass
-        
-        # If no valid JSON found, return the raw response
+
         return JSONResponse(content={"result": result})
 
     except Exception as e:
